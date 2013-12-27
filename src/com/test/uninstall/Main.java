@@ -39,9 +39,9 @@ public class Main extends Activity {
 
 			@Override
 			public void onClick(View v) {
+				
 //				String apkName = "/sdcard/ETPlayer_1.2.2.9.apk";
 //				String systemApk = apkName;
-//
 //				StringBuffer command = new StringBuffer();
 //				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
 //				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
