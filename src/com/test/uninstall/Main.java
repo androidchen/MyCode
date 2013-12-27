@@ -1,0 +1,149 @@
+package com.test.uninstall;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import com.easyclient.utils.Installer;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+
+public class Main extends Activity {
+	public static final String TAG = "Main";
+
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		Button button = (Button) findViewById(R.id.btn);
+		button.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				uninstall();
+			}
+		});
+
+		Button installBtn = (Button) findViewById(R.id.install);
+		installBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+//				String apkName = "/sdcard/ETPlayer_1.2.2.9.apk";
+//				String systemApk = apkName;
+//
+//				StringBuffer command = new StringBuffer();
+//				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
+//				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
+//				command.append("cat " + apkName + " > " + systemApk + ";\n");
+//				command.append("mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system\n");
+//				execInstallCmd(command.toString());
+			}
+		});
+
+	}
+
+	// 从ndk中返回字符串
+	private void testNDK() {
+		Installer installer = new Installer();
+		print(installer.install("/system/app/ETPlayer_1.2.2.9.apk"));
+	}
+
+	private File[] getSystemApps() {
+		File systemApp = new File("/system/app/");
+		File[] systemApps = systemApp.listFiles();
+
+		return systemApps;
+	}
+
+	private File[] getDataApps() {
+		File dataApp = new File("/data/app/");
+		File[] dataApps = dataApp.listFiles();
+
+		return dataApps;
+	}
+
+	private void printFileInfo(File[] files) {
+		if (files == null) {
+			System.out.println("error, files is null!");
+		}
+		for (int i = 0; i < files.length; i++) {
+			System.out.println("fileName:" + files[i].getName());
+		}
+	}
+
+	private void print(String content) {
+		System.out.println(content);
+	}
+
+	// 卸载
+	private void uninstall() {
+
+		// 还要将升级部分删除
+		// String packageName = "com.easyclient.activity";
+		//
+		// Uri packageURI = Uri.parse("package:" + packageName);
+		// Intent uninstallIntent = new Intent(Intent.ACTION_DELETE,
+		// packageURI);
+		// uninstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		// startActivity(uninstallIntent);
+
+		String apkName = "/system/app/UC8.7.4.apk";
+		uninstallCommand(apkName);
+
+		System.out.println("uninstall successfully!");
+	}
+
+	// 执行卸载命令，删除system程序
+	public void uninstallCommand(String apkName) {
+		Process process;
+		Installer installer = new Installer();
+		process = installer.getProcess("su");
+		if (process == null) {
+			Log.e(TAG, "process is null");
+		}
+		// try {
+		// process = Runtime.getRuntime().exec("su");
+		// DataOutputStream os = new
+		// DataOutputStream(process.getOutputStream());
+		// os.writeBytes("mount -o remount,rw -t rfs /dev/stl5 /system; \n");
+		// os.writeBytes("rm -r " + apkName + "; \n");
+		// os.writeBytes("mount -o remount,ro -t rfs /dev/stl5 /system; \n");
+		// }
+		// catch (IOException e) {
+		// e.printStackTrace();
+		// }
+	}
+
+	// 安装apk至system
+	public String execInstallCmd(String paramString) {
+		String result = "result : ";
+		try {
+			Process localProcess = Runtime.getRuntime().exec("su ");// 经过Root处理的android系统即有su命令
+			OutputStream localOutputStream = localProcess.getOutputStream();
+			DataOutputStream localDataOutputStream = new DataOutputStream(localOutputStream);
+			String str1 = String.valueOf(paramString);
+			String str2 = str1 + "\n";
+			localDataOutputStream.writeBytes(str2);
+			localDataOutputStream.flush();
+			localDataOutputStream.writeBytes("exit\n");
+			localDataOutputStream.flush();
+			localProcess.waitFor();
+			return result;
+		}
+		catch (Exception localException) {
+			localException.printStackTrace();
+			return result;
+		}
+	}
+}
