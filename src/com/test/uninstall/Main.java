@@ -58,7 +58,6 @@ public class Main extends Activity {
 				String systemApk = "/system/app/***.apk";
 				StringBuffer command = new StringBuffer();
 				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
-				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
 				command.append("cat " + sourceApkName + " > " + systemApk + ";\n");
 				command.append("mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system\n");
 				execInstallCmd(command.toString());
@@ -130,7 +129,7 @@ public class Main extends Activity {
 		uninstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(uninstallIntent);
 
-		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
+		String apkName = "/system/app/***.apk";
 		uninstallCommand(apkName);
 
 		System.out.println("uninstall successfully!");
