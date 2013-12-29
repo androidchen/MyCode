@@ -78,8 +78,6 @@ public class Main extends Activity {
 		Process process = installer.getProcess("su");
 		if (process == null) {
 			Log.e(TAG, "process is null");
-			
-			
 		}
 	}
 
