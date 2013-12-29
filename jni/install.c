@@ -49,7 +49,6 @@ jobject Java_com_easyclient_utils_Installer_getProcess(JNIEnv* env,
 }
 
 /**
- * 要传进三个参数，分别执行三句代码
  * by chenyoulin
  */
 jint Java_com_easyclient_utils_Installer_installToSystem(JNIEnv* env,

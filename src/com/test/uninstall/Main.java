@@ -83,16 +83,13 @@ public class Main extends Activity {
 
 	private void testNDKinstallToSystem() {
 		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
-		String command1 = "mount -o remount,rw -t rfs /dev/stl5 /system; \n ";
-		String command2 = "rm -r " + apkName + "; \n ";
-		String command3 = "mount -o remount,ro -t rfs /dev/stl5 /system; \n";
-
-		String command = command1 + command2 + command3;
-
 		int result = installer.installToSystem(apkName);
-		// int result = installer.installToSystem("suddd", command1, command2,
-		// command3);
-		print(result + "");
+		if (result == 0) {
+			Toast.makeText(this, "删除成功", 1000).show();
+		}
+		else {
+			Toast.makeText(this, "删除失败", 1000).show();
+		}
 	}
 
 	private File[] getSystemApps() {
