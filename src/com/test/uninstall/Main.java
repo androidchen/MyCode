@@ -48,14 +48,14 @@ public class Main extends Activity {
 			@Override
 			public void onClick(View v) {
 
-				String sourceApkName = "/sdcard/ETPlayer_1.2.2.9.apk";
+				String sourceApkName = "/sdcard/***.apk";
 				File sApk = new File(sourceApkName);
 				if (!sApk.exists()) {
-					Toast.makeText(Main.this, "移动课堂安装包不存在", Toast.LENGTH_LONG).show();
+					Toast.makeText(Main.this, "安装包不存在", Toast.LENGTH_LONG).show();
 					return;
 				}
 
-				String systemApk = "/system/app/ETPlayer_1.2.2.9.apk";
+				String systemApk = "/system/app/***.apk";
 				StringBuffer command = new StringBuffer();
 				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
 				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
