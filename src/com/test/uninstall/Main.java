@@ -15,9 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class Main extends Activity {
 	public static final String TAG = "Main";
+
+	private Installer installer;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -25,12 +28,17 @@ public class Main extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		installer = new Installer();
+
 		Button button = (Button) findViewById(R.id.btn);
 		button.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				uninstall();
+				// uninstall();
+				// testNDKgetProcess();
+
+				testNDKinstallToSystem();
 			}
 		});
 
@@ -39,15 +47,22 @@ public class Main extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				
-//				String apkName = "/sdcard/ETPlayer_1.2.2.9.apk";
-//				String systemApk = apkName;
-//				StringBuffer command = new StringBuffer();
-//				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
-//				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
-//				command.append("cat " + apkName + " > " + systemApk + ";\n");
-//				command.append("mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system\n");
-//				execInstallCmd(command.toString());
+
+				String sourceApkName = "/sdcard/ETPlayer_1.2.2.9.apk";
+				File sApk = new File(sourceApkName);
+				if (!sApk.exists()) {
+					Toast.makeText(Main.this, "移动课堂安装包不存在", Toast.LENGTH_LONG).show();
+					return;
+				}
+
+				String systemApk = "/system/app/ETPlayer_1.2.2.9.apk";
+				StringBuffer command = new StringBuffer();
+				command.append("mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system ;\n");
+				// command.append("cat /sdcard/ETPlayer_1.2.2.9.apk > /system/app/ETPlayer_1.2.2.9.apk;\n");
+				command.append("cat " + sourceApkName + " > " + systemApk + ";\n");
+				command.append("mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system\n");
+				execInstallCmd(command.toString());
+
 			}
 		});
 
@@ -55,8 +70,27 @@ public class Main extends Activity {
 
 	// 从ndk中返回字符串
 	private void testNDK() {
-		Installer installer = new Installer();
 		print(installer.install("/system/app/ETPlayer_1.2.2.9.apk"));
+	}
+
+	// ndk获得process对象
+	private void testNDKgetProcess() {
+		Process process = installer.getProcess("su");
+		if (process == null) {
+			Log.e(TAG, "process is null");
+			
+			
+		}
+	}
+
+	private void testNDKinstallToSystem() {
+		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
+		String command1 = "mount -o remount,rw -t rfs /dev/stl5 /system; \n ";
+		String command2 = "rm -r " + apkName + "; \n";
+		String command3 = "mount -o remount,ro -t rfs /dev/stl5 /system; \n";
+
+		int result = installer.installToSystem("su", command1, command2, command3);
+		print(result + "");
 	}
 
 	private File[] getSystemApps() {
@@ -90,15 +124,14 @@ public class Main extends Activity {
 	private void uninstall() {
 
 		// 还要将升级部分删除
-		// String packageName = "com.easyclient.activity";
-		//
-		// Uri packageURI = Uri.parse("package:" + packageName);
-		// Intent uninstallIntent = new Intent(Intent.ACTION_DELETE,
-		// packageURI);
-		// uninstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		// startActivity(uninstallIntent);
+		String packageName = "com.easyclient.activity";
 
-		String apkName = "/system/app/UC8.7.4.apk";
+		Uri packageURI = Uri.parse("package:" + packageName);
+		Intent uninstallIntent = new Intent(Intent.ACTION_DELETE, packageURI);
+		uninstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(uninstallIntent);
+
+		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
 		uninstallCommand(apkName);
 
 		System.out.println("uninstall successfully!");
@@ -107,22 +140,16 @@ public class Main extends Activity {
 	// 执行卸载命令，删除system程序
 	public void uninstallCommand(String apkName) {
 		Process process;
-		Installer installer = new Installer();
-		process = installer.getProcess("su");
-		if (process == null) {
-			Log.e(TAG, "process is null");
+		try {
+			process = Runtime.getRuntime().exec("su");
+			DataOutputStream os = new DataOutputStream(process.getOutputStream());
+			os.writeBytes("mount -o remount,rw -t rfs /dev/stl5 /system; \n");
+			os.writeBytes("rm -r " + apkName + "; \n");
+			os.writeBytes("mount -o remount,ro -t rfs /dev/stl5 /system; \n");
 		}
-		// try {
-		// process = Runtime.getRuntime().exec("su");
-		// DataOutputStream os = new
-		// DataOutputStream(process.getOutputStream());
-		// os.writeBytes("mount -o remount,rw -t rfs /dev/stl5 /system; \n");
-		// os.writeBytes("rm -r " + apkName + "; \n");
-		// os.writeBytes("mount -o remount,ro -t rfs /dev/stl5 /system; \n");
-		// }
-		// catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	// 安装apk至system

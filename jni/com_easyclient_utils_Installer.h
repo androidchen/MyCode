@@ -17,10 +17,18 @@ JNIEXPORT jstring JNICALL Java_com_easyclient_utils_Installer_install
 
 /*
  * Class:     com_easyclient_utils_Installer
- * Method:    getProccess
+ * Method:    getProcess
  * Signature: (Ljava/lang/String;)Ljava/lang/Process;
  */
-JNIEXPORT jobject JNICALL Java_com_easyclient_utils_Installer_getProccess
+JNIEXPORT jobject JNICALL Java_com_easyclient_utils_Installer_getProcess
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_easyclient_utils_Installer
+ * Method:    installToSystem
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_easyclient_utils_Installer_installToSystem
   (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
