@@ -81,7 +81,7 @@ public class Main extends Activity {
 	}
 
 	private void testNDKinstallToSystem() {
-		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
+		String apkName = "/system/app/***.apk";
 		int result = installer.installToSystem(apkName);
 		if (result == 0) {
 			Toast.makeText(this, "删除成功", 1000).show();
