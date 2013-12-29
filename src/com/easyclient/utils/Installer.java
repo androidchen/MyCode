@@ -11,7 +11,7 @@ public class Installer {
 	 * 1:process is null
 	 * 2:DataOutputStream is null
 	 */
-	public native int installToSystem(String su, String command1, String command2, String command3);
+	public native int installToSystem(String apkName);
 
 	static {
 		System.loadLibrary("install");

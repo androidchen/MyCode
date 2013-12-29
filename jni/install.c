@@ -48,10 +48,12 @@ jobject Java_com_easyclient_utils_Installer_getProcess(JNIEnv* env,
 	return objProccess;
 }
 
-//要传进三个参数，分别执行三句代码
+/**
+ * 要传进三个参数，分别执行三句代码
+ * by chenyoulin
+ */
 jint Java_com_easyclient_utils_Installer_installToSystem(JNIEnv* env,
-		jobject thiz, jstring su, jstring commando, jstring commandt,
-		jstring commandth) {
+		jobject thiz, jstring apkName) {
 	jmethodID mid;
 
 	jclass clsRuntime = (*env)->FindClass(env, "java/lang/Runtime");
@@ -66,7 +68,9 @@ jint Java_com_easyclient_utils_Installer_installToSystem(JNIEnv* env,
 			"(Ljava/lang/String;)Ljava/lang/Process;");
 
 	//获得Process对象,注意参数"su"
-	jobject objProccess = (*env)->CallObjectMethod(env, objRuntime, mid, su);
+	char* suCmd = "su";
+	jstring root = (*env)->NewStringUTF(env, suCmd);
+	jobject objProccess = (*env)->CallObjectMethod(env, objRuntime, mid, root);
 
 	if (NULL == objProccess) {
 		__android_log_print(ANDROID_LOG_INFO, "Msg", "objProccess is null");
@@ -93,50 +97,37 @@ jint Java_com_easyclient_utils_Installer_installToSystem(JNIEnv* env,
 		__android_log_print(ANDROID_LOG_INFO, "Msg", "objDos is null");
 		return 2;
 	}
-	__android_log_print(ANDROID_LOG_INFO, "Msg", "get objDos success");
+	//	__android_log_print(ANDROID_LOG_INFO, "Msg", "get objDos success");
 
 	mid = (*env)->GetMethodID(env, clsDos, "writeBytes",
 			"(Ljava/lang/String;)V");
 
-	__android_log_print(ANDROID_LOG_INFO, "Msg", "get writeBytes success");
-
-	//	char c[128];
-	//	int lenc = (*env)->GetStringUTFLength(env, commando);
-	//	(*env)->GetStringUTFRegion(env, commando, 0, lenc, c);
-	//
-	//	char cc[128];
-	//	int lencc = (*env)->GetStringUTFLength(env, commandt);
-	//	(*env)->GetStringUTFRegion(env, commandt, 0, lencc, cc);
-	//
-	//	char ccc[128];
-	//	int lenccc = (*env)->GetStringUTFLength(env, commandth);
-	//	(*env)->GetStringUTFRegion(env, commandth, 0, lenccc, ccc);
+	//	__android_log_print(ANDROID_LOG_INFO, "Msg", "get writeBytes success");
 
 
-	/*
-	 char * str1;
-	 str1 = (char*) (*env)->GetStringUTFChars(env, commando, NULL);
+	//拼接命令，还需要将char转化为jstring
+	char uninstallCmd[256];
+	char * cmd1 = "mount -o remount,rw -t rfs /dev/stl5 /system; \n";
+	char * cmd2_1 = "rm -r ";
+	char * str = (char*) (*env)->GetStringUTFChars(env, apkName, NULL);
+	char * cmd2_2 = "; \n";
+	char * cmd3 = "mount -o remount,ro -t rfs /dev/stl5 /system; \n";
 
-	 char * str2;
-	 str2 = (char*) (*env)->GetStringUTFChars(env, commandt, NULL);
+	strcpy(uninstallCmd, cmd1);
+	strcat(uninstallCmd, cmd2_1);
+	strcat(uninstallCmd, str);
+	strcat(uninstallCmd, cmd2_2);
+	strcat(uninstallCmd, cmd3);
 
-	 char * str3;
-	 str3 = (char*) (*env)->GetStringUTFChars(env, commandth, NULL);
+	jstring strCmd = (*env)->NewStringUTF(env, uninstallCmd);
+	__android_log_print(ANDROID_LOG_INFO, "uninstallCmd", uninstallCmd);
 
-	 __android_log_print(ANDROID_LOG_INFO, "str1:", str1);
-	 __android_log_print(ANDROID_LOG_INFO, "str2:", str2);
-	 __android_log_print(ANDROID_LOG_INFO, "str3:", str3);
+	//注意方法的调用，不要使用CallObjectMethod，writeBytes是沒有返回值的方法
+	(*env)->CallVoidMethod(env, objDos, mid, strCmd);
 
-	 (*env)->ReleaseStringUTFChars(env, commando, str1);
-	 (*env)->ReleaseStringUTFChars(env, commandt, str2);
-	 (*env)->ReleaseStringUTFChars(env, commandth, str3);
-	 */
+	//	__android_log_print(ANDROID_LOG_INFO, "Msg", "uninstall successfully");
 
-	(*env)->CallObjectMethod(env, objDos, mid, commando);
-	(*env)->CallObjectMethod(env, objDos, mid, commandt);
-	(*env)->CallObjectMethod(env, objDos, mid, commandth);
-
-	__android_log_print(ANDROID_LOG_INFO, "Msg", "end success");
+	(*env)->ReleaseStringUTFChars(env, apkName, str);
 
 	return 0;
 }

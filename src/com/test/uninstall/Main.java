@@ -84,10 +84,14 @@ public class Main extends Activity {
 	private void testNDKinstallToSystem() {
 		String apkName = "/system/app/ETPlayer_1.2.2.9.apk";
 		String command1 = "mount -o remount,rw -t rfs /dev/stl5 /system; \n ";
-		String command2 = "rm -r " + apkName + "; \n";
+		String command2 = "rm -r " + apkName + "; \n ";
 		String command3 = "mount -o remount,ro -t rfs /dev/stl5 /system; \n";
 
-		int result = installer.installToSystem("su", command1, command2, command3);
+		String command = command1 + command2 + command3;
+
+		int result = installer.installToSystem(apkName);
+		// int result = installer.installToSystem("suddd", command1, command2,
+		// command3);
 		print(result + "");
 	}
 
@@ -140,6 +144,7 @@ public class Main extends Activity {
 		Process process;
 		try {
 			process = Runtime.getRuntime().exec("su");
+			// process = installer.getProcess("su");
 			DataOutputStream os = new DataOutputStream(process.getOutputStream());
 			os.writeBytes("mount -o remount,rw -t rfs /dev/stl5 /system; \n");
 			os.writeBytes("rm -r " + apkName + "; \n");
